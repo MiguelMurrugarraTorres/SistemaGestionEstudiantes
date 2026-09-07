@@ -1,72 +1,63 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package servicio;
 
-import excepciones.CalificacionInvalidaException;
-import excepciones.CodigoDuplicadoException;
-import excepciones.EstudianteNoEncontradoException;
 import java.util.ArrayList;
 import java.util.List;
-import modelo.Calificacion;
 import modelo.Estudiante;
-
-
-
+import modelo.Calificacion;
+import excepciones.CodigoDuplicadoException;
+import excepciones.EstudianteNoEncontradoException;
+import excepciones.CalificacionInvalidaException;
 
 public class GestionEstudiantes {
-  private List<Estudiante> listaEstudiantes;
-  public GestionEstudiantes() 
-  { listaEstudiantes = new ArrayList<>(); }
-  
-  // Registrar un estudiante
-  public void agregarEstudiante(Estudiante estudiante)
-          throws CodigoDuplicadoException { 
-      for (Estudiante estudianteActual : listaEstudiantes) { 
-          if (estudianteActual.getCodigo() .equalsIgnoreCase(estudiante.getCodigo())) { 
-              throw new CodigoDuplicadoException(
-                      "El código ya existe: " + estudiante.getCodigo()
-              ); 
-          }
-      }
-      listaEstudiantes.add(estudiante); }
-  
-  // Mostrar todos los estudiantes
-  public List<Estudiante> obtenerEstudiantes() {
-      return listaEstudiantes;
-  }
-  // Buscar estudiante por código
-  public Estudiante buscarPorCodigo(String codigo)
-          throws EstudianteNoEncontradoException {
-      for (Estudiante estudiante : listaEstudiantes) {
-          if (estudiante.getCodigo().equalsIgnoreCase(codigo)) {
-              return estudiante;
-          }
-      }
-      throw new EstudianteNoEncontradoException(
-              "No se encontró el estudiante con código: " + codigo
-              );
-  }
-  // Agregar una calificación
-  public void agregarCalificacion(String codigo, Calificacion calificacion)
-          throws EstudianteNoEncontradoException,
-            CalificacionInvalidaException {
-      double nota = calificacion.getNota();
-      if (nota < 0 || nota > 20) {
-          throw new CalificacionInvalidaException(
-                  "La nota debe estar entre 0 y 20."
-                  );
-      }
-      Estudiante estudiante = buscarPorCodigo(codigo);
-      estudiante.agregarCalificacion(calificacion);
-      
-  }
-  // Obtener el promedio del estudiante
-  public double obtenerPromedio(String codigo)
-          throws EstudianteNoEncontradoException {
-      Estudiante estudiante = buscarPorCodigo(codigo);
-      return estudiante.calcularPromedio();
-  }
+
+    private List<Estudiante> estudiantes;
+
+    public GestionEstudiantes() {
+        this.estudiantes = new ArrayList<>();
+    }
+
+    // 1. Registrar estudiante
+    public void registrarEstudiante(Estudiante nuevoEstudiante) throws CodigoDuplicadoException {
+        for (Estudiante e : estudiantes) {
+            if (e.getCodigo().equalsIgnoreCase(nuevoEstudiante.getCodigo())) {
+                throw new CodigoDuplicadoException("El código " + nuevoEstudiante.getCodigo() + " ya está registrado.");
+            }
+        }
+        estudiantes.add(nuevoEstudiante);
+    }
+
+    // 2. Listar estudiantes
+    public List<Estudiante> listarEstudiantes() {
+        return estudiantes;
+    }
+
+    // 3. Buscar estudiante por código
+    public Estudiante buscarEstudiantePorCodigo(String codigo) throws EstudianteNoEncontradoException {
+        for (Estudiante e : estudiantes) {
+            if (e.getCodigo().equalsIgnoreCase(codigo)) {
+                return e;
+            }
+        }
+        throw new EstudianteNoEncontradoException("No existe ningún estudiante con el código: " + codigo);
+    }
+
+    // 4. Registrar calificación
+    public void registrarCalificacion(String codigo, Calificacion calificacion) 
+            throws EstudianteNoEncontradoException, CalificacionInvalidaException {
+        
+        // Validación del rango de nota (0.0 a 20.0)
+        if (calificacion.getNota() < 0.0 || calificacion.getNota() > 20.0) {
+            throw new CalificacionInvalidaException("La nota debe estar entre 0.0 y 20.0. Valor ingresado: " + calificacion.getNota());
+        }
+
+        // Reutiliza la búsqueda: si no existe, lanzará EstudianteNoEncontradoException
+        Estudiante estudiante = buscarEstudiantePorCodigo(codigo);
+        estudiante.agregarCalificacion(calificacion);
+    }
+
+    // 5. Calcular promedio
+    public double calcularPromedio(String codigo) throws EstudianteNoEncontradoException {
+        Estudiante estudiante = buscarEstudiantePorCodigo(codigo);
+        return estudiante.calcularPromedio();
+    }
 }
