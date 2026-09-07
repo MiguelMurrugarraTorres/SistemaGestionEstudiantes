@@ -1,8 +1,10 @@
 package excepciones;
 
-public class CalificacionInvalidaException extends Exception {
+/**
+ *
+ * @author murtormi
+ */
+public class CalificacionInvalidaException  extends Exception{
     
-    public CalificacionInvalidaException(String mensaje) {
-        super(mensaje);
-    }
+    public CalificacionInvalidaException(String mensaje) { super(mensaje); }
 }
