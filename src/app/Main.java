@@ -104,3 +104,79 @@ public class Main {
             System.out.println("No hay estudiantes registrados en el sistema.");
             return;
         }
+
+        for (Estudiante e : lista) {
+            System.out.println(e);
+        }
+    }
+
+    private static void buscarEstudiante() {
+        System.out.println("--- BÚSQUEDA DE ESTUDIANTE ---");
+        System.out.print("Ingrese código del estudiante a buscar: ");
+        String codigo = scanner.nextLine().trim();
+
+        try {
+            Estudiante encontrado = servicio.buscarEstudiantePorCodigo(codigo);
+            System.out.println("\nEstudiante encontrado:");
+            System.out.println("Código: " + encontrado.getCodigo());
+            System.out.println("Nombre completo: " + encontrado.getNombre() + " " + encontrado.getApellido());
+            
+            if (encontrado.tieneCalificaciones()) {
+                System.out.println("Calificaciones:");
+                for (Calificacion c : encontrado.getCalificaciones()) {
+                    System.out.println(" - " + c);
+                }
+            } else {
+                System.out.println("Calificaciones: Sin notas registradas.");
+            }
+        } catch (EstudianteNoEncontradoException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void registrarCalificacion() {
+        System.out.println("--- REGISTRO DE CALIFICACIÓN ---");
+        System.out.print("Ingrese código del estudiante: ");
+        String codigo = scanner.nextLine().trim();
+
+        System.out.print("Ingrese el nombre del curso/materia: ");
+        String curso = scanner.nextLine().trim();
+
+        if (curso.isEmpty()) {
+            System.out.println("Error: El nombre del curso no puede estar vacío.");
+            return;
+        }
+
+        System.out.print("Ingrese la nota (0.0 a 20.0): ");
+        try {
+            double nota = Double.parseDouble(scanner.nextLine().trim());
+            Calificacion calificacion = new Calificacion(curso, nota);
+            servicio.registrarCalificacion(codigo, calificacion);
+            System.out.println("Calificación registrada exitosamente.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: La nota debe ser un número decimal o entero.");
+        } catch (EstudianteNoEncontradoException | CalificacionInvalidaException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void calcularPromedio() {
+        System.out.println("--- CALCULAR PROMEDIO ---");
+        System.out.print("Ingrese código del estudiante: ");
+        String codigo = scanner.nextLine().trim();
+
+        try {
+            Estudiante estudiante = servicio.buscarEstudiantePorCodigo(codigo);
+            if (!estudiante.tieneCalificaciones()) {
+                System.out.println("El estudiante " + estudiante.getNombre() + " " + estudiante.getApellido() 
+                        + " no cuenta con calificaciones registradas para calcular un promedio.");
+            } else {
+                double promedio = servicio.calcularPromedio(codigo);
+                System.out.printf("El promedio del estudiante %s %s es: %.2f\n", 
+                        estudiante.getNombre(), estudiante.getApellido(), promedio);
+            }
+        } catch (EstudianteNoEncontradoException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
